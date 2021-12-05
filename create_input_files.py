@@ -3,6 +3,10 @@ from matplotlib import pyplot as plt
 import argparse
 import random
 from scipy.optimize import curve_fit
+import sys
+
+
+GAUSSIAN_VALUES_FILEPATH = 'data/results.txt'
 
 
 def parse_args():
@@ -26,6 +30,15 @@ def create_function(_min, _max, step, objective):
     return x, y, results
 
 
+def save_data_to_file(results):
+    file = open(GAUSSIAN_VALUES_FILEPATH, 'w')
+    file.write(str(results.shape[0]) + '\n')
+    file.write(str(results.shape[1]) + '\n')
+    for row in results:
+        np.savetxt(file, row)
+    file.close()
+
+
 gaussian = lambda _x, _y, x0, y0, x_alpha, y_alpha, A: A * np.exp(-((_x - x0) / x_alpha) ** 2 -
                                                                   ((_y - y0) / y_alpha) ** 2)
 
@@ -39,32 +52,45 @@ def _gaussian(M, *args):
 
 
 def non_linear_objective(x, y):
-    gprms = [(0, 2, 2.5, 5.4, 1.5),
-             (-1, 4, 6, 2.5, 1.8),
-             (-3, -0.5, 1, 2, 4),
-             (3, 0.5, 2, 1, 5)
-             ]
-    noise_sigma = 0.1
+    try:
+        file = open(GAUSSIAN_VALUES_FILEPATH, 'r')
+    except OSError:
+        gprms = [(0, 2, 2.5, 5.4, 1.5),
+                 (-1, 4, 6, 2.5, 1.8),
+                 (-3, -0.5, 1, 2, 4),
+                 (3, 0.5, 2, 1, 5)
+                 ]
+        noise_sigma = 0.1
 
-    results = np.zeros(x.shape)
-    for p in gprms:
-        results += gaussian(x, y, *p)
-    random.seed(123)
-    results += noise_sigma * np.random.randn(*results.shape)
-    results *= -6
+        results = np.zeros(x.shape)
+        for p in gprms:
+            results += gaussian(x, y, *p)
+        random.seed(123)
+        results += noise_sigma * np.random.randn(*results.shape)
+        results *= -6
 
-    guess_prms = [(0, 0, 1, 1, 2),
-                  (-1.5, 5, 5, 1, 3),
-                  (-4, -1, 1.5, 1.5, 6),
-                  (4, 1, 1.5, 1.5, 6.5)
-                  ]
+        guess_prms = [(0, 0, 1, 1, 2),
+                      (-1.5, 5, 5, 1, 3),
+                      (-4, -1, 1.5, 1.5, 6),
+                      (4, 1, 1.5, 1.5, 6.5)
+                      ]
 
-    p0 = [p for prms in guess_prms for p in prms]
-    xdata = np.vstack((x.ravel(), y.ravel()))
-    popt, pcov = curve_fit(_gaussian, xdata, results.ravel(), p0)
-    fit = np.zeros(results.shape)
-    for i in range(len(popt) // 5):
-        fit += gaussian(x, y, *popt[i * 5:i * 5 + 5])
+        p0 = [p for prms in guess_prms for p in prms]
+        xdata = np.vstack((x.ravel(), y.ravel()))
+        popt, pcov = curve_fit(_gaussian, xdata, results.ravel(), p0)
+        fit = np.zeros(results.shape)
+        for i in range(len(popt) // 5):
+            fit += gaussian(x, y, *popt[i * 5:i * 5 + 5])
+
+        save_data_to_file(fit)
+        return fit
+
+    with file:
+        x_dim = int(file.readline())
+        y_dim = int(file.readline())
+
+    fit = np.loadtxt(GAUSSIAN_VALUES_FILEPATH, skiprows=2).reshape(x_dim, y_dim)
+
     return fit
 
 
