@@ -1,25 +1,10 @@
-import numpy as np
 from matplotlib import pyplot as plt
-import argparse
-import random
 from scipy.optimize import curve_fit
-import sys
+import numpy as np
+import random
 
-
-GAUSSIAN_VALUES_FILEPATH = 'data/results.txt'
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Creating files with input functions')
-    parser.add_argument('min', type=int, nargs='?', default=-5, help='A required positional integer - minimal value of'
-                                                                     ' axes range')
-    parser.add_argument('max', type=int, nargs='?', default=5, help='An optional positional integer - maximal value of'
-                                                                    ' axes range')
-    parser.add_argument('step', type=float, nargs='?', default=0.01, help='An optional positional float - step of axes')
-    _args = parser.parse_args()
-    if _args.min >= _args.max:
-        parser.error("'max' value must be greater than 'min' value.")
-    return _args
+import exceptions as e
+import vals
 
 
 def create_function(_min, _max, step, objective):
@@ -31,7 +16,7 @@ def create_function(_min, _max, step, objective):
 
 
 def save_data_to_file(results):
-    file = open(GAUSSIAN_VALUES_FILEPATH, 'w')
+    file = open(vals.GAUSSIAN_VALUES_FILEPATH, 'w')
     file.write(str(results.shape[0]) + '\n')
     file.write(str(results.shape[1]) + '\n')
     for row in results:
@@ -53,7 +38,7 @@ def _gaussian(M, *args):
 
 def non_linear_objective(x, y):
     try:
-        file = open(GAUSSIAN_VALUES_FILEPATH, 'r')
+        file = open(vals.GAUSSIAN_VALUES_FILEPATH, 'r')
     except OSError:
         gprms = [(0, 2, 2.5, 5.4, 1.5),
                  (-1, 4, 6, 2.5, 1.8),
@@ -67,7 +52,8 @@ def non_linear_objective(x, y):
             results += gaussian(x, y, *p)
         random.seed(123)
         results += noise_sigma * np.random.randn(*results.shape)
-        results *= -6
+        results *= -1
+        results += 5.8
 
         guess_prms = [(0, 0, 1, 1, 2),
                       (-1.5, 5, 5, 1, 3),
@@ -83,13 +69,14 @@ def non_linear_objective(x, y):
             fit += gaussian(x, y, *popt[i * 5:i * 5 + 5])
 
         save_data_to_file(fit)
+
         return fit
 
     with file:
         x_dim = int(file.readline())
         y_dim = int(file.readline())
 
-    fit = np.loadtxt(GAUSSIAN_VALUES_FILEPATH, skiprows=2).reshape(x_dim, y_dim)
+    fit = np.loadtxt(vals.GAUSSIAN_VALUES_FILEPATH, skiprows=2).reshape(x_dim, y_dim)
 
     return fit
 
@@ -109,18 +96,20 @@ def create_2D_figure(x, y, results, title):
     plt.show()
 
 
-if __name__ == "__main__":
-    args = parse_args()
-
-    # _x, _y, _results = create_function(args.min, args.max, args.step, lambda x, y: x ** 2 + y ** 2)
-    # create_3D_figure(_x, _y, _results, 'Unimodal function 1')
-    # create_2D_figure(_x, _y, _results, 'Unimodal function 1')
-    #
-    # _x, _y, _results = create_function(args.min, args.max, args.step, lambda x, y: 0.26 * (x ** 2 + y ** 2) -
-    #                                                                                0.48 * x * y)
-    # create_3D_figure(_x, _y, _results, 'Unimodal function 2')
-    # create_2D_figure(_x, _y, _results, 'Unimodal function 2')
-
-    _x, _y, _results = create_function(args.min, args.max, args.step, non_linear_objective)
-    create_3D_figure(_x, _y, _results, 'Multimodal function 1')
-    create_2D_figure(_x, _y, _results, 'Multimodal function 1')
+def create_input(function_num, _min=vals.DEFAULT_RANGE_MIN, _max=vals.DEFAULT_RANGE_MAX, step=vals.DEFAULT_STEP):
+    if _min >= _max:
+        raise e.InvalidRangeError
+    if function_num == 1:
+        _x, _y, _results = create_function(_min, _max, step, lambda x, y: x ** 2 + y ** 2)
+        create_3D_figure(_x, _y, _results, 'Unimodal function 1')
+        create_2D_figure(_x, _y, _results, 'Unimodal function 1')
+    elif function_num == 2:
+        _x, _y, _results = create_function(_min, _max, step, lambda x, y: 0.26 * (x ** 2 + y ** 2) - 0.48 * x * y)
+        create_3D_figure(_x, _y, _results, 'Unimodal function 2')
+        create_2D_figure(_x, _y, _results, 'Unimodal function 2')
+    elif function_num == 3:
+        _x, _y, _results = create_function(_min, _max, step, non_linear_objective)
+        create_3D_figure(_x, _y, _results, 'Multimodal function 1')
+        create_2D_figure(_x, _y, _results, 'Multimodal function 1')
+    else:
+        raise e.InputFunctionNumberError(function_num)
