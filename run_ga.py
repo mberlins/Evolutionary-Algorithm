@@ -1,8 +1,8 @@
 import argparse
 
 import vals
-from ga.genetic_algorithm import GeneticAlgorithm
 from ga.space import Space
+from ga.genetic_algorithm import GeneticAlgorithm
 
 
 def parse_args():
@@ -43,5 +43,3 @@ if __name__ == '__main__':
     population = ga.init_population()
     ga.calculate_fitness(population)
     ga.selection(population)
-
-

@@ -1,8 +1,6 @@
 import numpy as np
 from numpy.random import randint
 from random import random
-from random import gauss, randrange
-import numpy.random as npr
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -50,7 +48,8 @@ class GeneticAlgorithm:
         population.individuals.sort(key=lambda ind: ind.fitness)
         fitness_sum = sum([ind.fitness for ind in population.individuals])
         selection_probs = [ind.fitness / fitness_sum for ind in population.individuals]
-        selected = list(npr.choice(population.individuals, size=len(population.individuals)//2, p=selection_probs))
+        selected = list(np.random.choice(population.individuals, size=len(population.individuals)//2,
+                                         p=selection_probs))
         return selected
 
         # another solution
@@ -69,7 +68,3 @@ class GeneticAlgorithm:
         #     selected_idxs.append(GeneticAlgorithm.roulette_choice(population, random()))
         # selected = [population.individuals[selected_idx] for selected_idx in selected_idxs]
         # return selected
-
-
-
-
