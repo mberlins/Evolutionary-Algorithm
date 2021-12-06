@@ -1,7 +1,6 @@
 from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 import numpy as np
-from numpy import e
 import random
 
 import exceptions as exc
@@ -81,12 +80,6 @@ def non_linear_objective(x, y):
     fit = np.loadtxt(vals.GAUSSIAN_VALUES_FILEPATH, skiprows=2).reshape(x_dim, y_dim)
 
     return fit
-
-
-# def unimodal_function1(x, y):
-#     result = []
-#     for x_el in x:
-#         for y_el in y:
 
 
 def create_3D_figure(x, y, results, title):

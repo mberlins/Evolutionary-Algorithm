@@ -1,5 +1,3 @@
-from numpy import e
-from numpy import exp
 import argparse
 import sys
 import os
