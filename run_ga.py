@@ -40,3 +40,5 @@ if __name__ == '__main__':
     ga = GeneticAlgorithm(space=space,
                           fitness_func=vals.INPUT_FUNCTIONS[args.function_num],
                           pop_size=args.pop_size)
+    population = ga.init_population()
+    print(population)
