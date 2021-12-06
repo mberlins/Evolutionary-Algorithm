@@ -1,17 +1,17 @@
 import argparse
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import vals
-from input import create_function, create_3D_figure, create_2D_figure
+from ga.genetic_algorithm import GeneticAlgorithm
+from ga.space import Space
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Creating files with input functions')
+    parser = argparse.ArgumentParser(description='Running genetic algorithm')
     parser.add_argument('function_num', type=int, help=f'A required positional integer - input function number '
                                                        f'(allowed are: {vals.ALLOWED_INPUT_FUNCS_NUMS})')
+    parser.add_argument('pop_size', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE, help='A required positional '
+                                                                                             'positive integer - '
+                                                                                             'population size')
     parser.add_argument('min', type=int, nargs='?', default=vals.DEFAULT_RANGE_MIN, help='A required positional integer'
                                                                                          ' - minimal value of axes '
                                                                                          'range')
@@ -28,12 +28,15 @@ def parse_args():
         parser.error(f'Incorrect input function number. Allowed numbers are: {vals.ALLOWED_INPUT_FUNCS_NUMS}.')
     if _args.min >= _args.max:
         parser.error("'max' value must be greater than 'min' value.")
+    if _args.pop_size <= 0 or not isinstance(_args.pop_size, int):
+        parser.error("Population size value must be a positive integer value")
 
     return _args
 
 
 if __name__ == '__main__':
     args = parse_args()
-    x, y, results = create_function(args.min, args.max, args.step, vals.INPUT_FUNCTIONS[args.function_num].formula)
-    create_3D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name)
-    create_2D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name)
+    space = Space(args.min, args.max, args.step)
+    ga = GeneticAlgorithm(space=space,
+                          fitness_func=vals.INPUT_FUNCTIONS[args.function_num],
+                          pop_size=args.pop_size)
