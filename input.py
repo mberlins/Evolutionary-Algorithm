@@ -1,9 +1,11 @@
-from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
+from matplotlib import pyplot as plt
 import numpy as np
+from numpy import e
 import random
 
-import exceptions as e
+import exceptions as exc
+from vals import InputFunction
 import vals
 
 
@@ -81,6 +83,12 @@ def non_linear_objective(x, y):
     return fit
 
 
+# def unimodal_function1(x, y):
+#     result = []
+#     for x_el in x:
+#         for y_el in y:
+
+
 def create_3D_figure(x, y, results, title):
     figure = plt.figure(num=f'{title} - 3D')
     axis = figure.add_subplot(projection='3d')
@@ -98,18 +106,14 @@ def create_2D_figure(x, y, results, title):
 
 def create_input(function_num, _min=vals.DEFAULT_RANGE_MIN, _max=vals.DEFAULT_RANGE_MAX, step=vals.DEFAULT_STEP):
     if _min >= _max:
-        raise e.InvalidRangeError
+        raise exc.InvalidRangeError
     if function_num == 1:
-        _x, _y, _results = create_function(_min, _max, step, lambda x, y: x ** 2 + y ** 2)
+        _x, _y, _results = create_function(_min, _max, step, InputFunction.UnimodalFunction1)
         create_3D_figure(_x, _y, _results, 'Unimodal function 1')
         create_2D_figure(_x, _y, _results, 'Unimodal function 1')
     elif function_num == 2:
-        _x, _y, _results = create_function(_min, _max, step, lambda x, y: 0.26 * (x ** 2 + y ** 2) - 0.48 * x * y)
+        _x, _y, _results = create_function(_min, _max, step, InputFunction.UnimodalFunction2)
         create_3D_figure(_x, _y, _results, 'Unimodal function 2')
         create_2D_figure(_x, _y, _results, 'Unimodal function 2')
-    elif function_num == 3:
-        _x, _y, _results = create_function(_min, _max, step, non_linear_objective)
-        create_3D_figure(_x, _y, _results, 'Multimodal function 1')
-        create_2D_figure(_x, _y, _results, 'Multimodal function 1')
     else:
-        raise e.InputFunctionNumberError(function_num)
+        raise exc.InputFunctionNumberError(function_num)
