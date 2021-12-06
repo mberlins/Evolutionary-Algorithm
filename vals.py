@@ -20,4 +20,3 @@ INPUT_FUNCTIONS = {
     2: InputFunction.UnimodalFunction2,
 }
 ALLOWED_INPUT_FUNCS_NUMS = INPUT_FUNCTIONS.keys()
-DASH_NUM = 100

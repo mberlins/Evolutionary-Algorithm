@@ -38,7 +38,10 @@ if __name__ == '__main__':
     args = parse_args()
     space = Space(args.min, args.max, args.step)
     ga = GeneticAlgorithm(space=space,
-                          fitness_func=vals.INPUT_FUNCTIONS[args.function_num],
+                          fitness_func=vals.INPUT_FUNCTIONS[args.function_num].formula,
                           pop_size=args.pop_size)
     population = ga.init_population()
-    print(population)
+    ga.calculate_fitness(population)
+    ga.selection(population)
+
+
