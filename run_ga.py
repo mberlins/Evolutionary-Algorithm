@@ -44,4 +44,5 @@ if __name__ == '__main__':
     ga.calculate_fitness(population)
     selected = ga.selection(population)
     parents = ga.pair(selected)
+    offsprings = ga.mate(parents)
 

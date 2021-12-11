@@ -88,3 +88,8 @@ class GeneticAlgorithm:
                     break
             parents.append([parent1, parent2])
         return parents
+
+    # exchange of coordinates of points
+    @staticmethod
+    def mate(parents):
+        return [[Individual(pair[0].x, pair[1].y), Individual(pair[1].x, pair[0].y)] for pair in parents]
