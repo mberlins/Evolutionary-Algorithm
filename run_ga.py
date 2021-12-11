@@ -42,4 +42,6 @@ if __name__ == '__main__':
                           pop_size=args.pop_size)
     population = ga.init_population()
     ga.calculate_fitness(population)
-    ga.selection(population)
+    selected = ga.selection(population)
+    parents = ga.pair(selected)
+

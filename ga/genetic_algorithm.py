@@ -3,6 +3,7 @@ from numpy.random import randint
 from random import random
 import sys
 import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import vals
@@ -23,7 +24,7 @@ class GeneticAlgorithm:
 
     @staticmethod
     def create_individual(lower_limit=vals.DEF_INIT_POP_LOWER_LIM, upper_limit=vals.DEF_INIT_POP_UPPER_LIM):
-        ind_coords = [random()*(upper_limit - lower_limit) + lower_limit for _ in range(2)]
+        ind_coords = [random() * (upper_limit - lower_limit) + lower_limit for _ in range(2)]
         return Individual(ind_coords[0], ind_coords[1])
 
     @staticmethod
@@ -36,6 +37,12 @@ class GeneticAlgorithm:
         for individual in population.individuals:
             individual.fitness = self.fitness_func(individual.x, individual.y)
 
+    @staticmethod
+    def get_weighted_rand_probs(individuals):
+        # individuals.sort(key=lambda ind: ind.fitness)
+        fitness_sum = sum([ind.fitness for ind in individuals])
+        return [ind.fitness / fitness_sum for ind in individuals]
+
     # @staticmethod
     # def roulette_choice(population, odds):
     #     pop_copy = [ind.cumulative_sum for ind in population.individuals]
@@ -43,12 +50,11 @@ class GeneticAlgorithm:
     #     pop_copy.sort()
     #     return pop_copy.index(odds)
 
+    # roulette wheel selection
     @staticmethod
     def selection(population):
-        population.individuals.sort(key=lambda ind: ind.fitness)
-        fitness_sum = sum([ind.fitness for ind in population.individuals])
-        selection_probs = [ind.fitness / fitness_sum for ind in population.individuals]
-        selected = list(np.random.choice(population.individuals, size=len(population.individuals)//2,
+        selection_probs = GeneticAlgorithm.get_weighted_rand_probs(population.individuals)
+        selected = list(np.random.choice(population.individuals, size=len(population.individuals) // 2,
                                          p=selection_probs))
         return selected
 
@@ -68,3 +74,17 @@ class GeneticAlgorithm:
         #     selected_idxs.append(GeneticAlgorithm.roulette_choice(population, random()))
         # selected = [population.individuals[selected_idx] for selected_idx in selected_idxs]
         # return selected
+
+    # weighted random pairing
+    @staticmethod
+    def pair(selected):
+        parents = []
+        pairing_probs = GeneticAlgorithm.get_weighted_rand_probs(selected)
+        for _ in range(len(selected) // 2):
+            parent1 = np.random.choice(selected, p=pairing_probs)
+            while True:
+                parent2 = np.random.choice(selected, p=pairing_probs)
+                if parent1 is not parent2:
+                    break
+            parents.append([parent1, parent2])
+        return parents
