@@ -1,6 +1,5 @@
 import numpy as np
-from numpy.random import randint
-from random import random
+import random
 import sys
 import os
 
@@ -12,25 +11,30 @@ from ga.population import Population
 
 
 class GeneticAlgorithm:
-    def __init__(self, space, fitness_func, pop_size):
-        self.space = space
+    def __init__(self,
+                 pop_size=vals.DEFAULT_POP_SIZE,
+                 init_pop_lower_lim=vals.DEF_INIT_POP_LOWER_LIM,
+                 init_pop_upper_lim=vals.DEF_INIT_POP_UPPER_LIM,
+                 selection_prob=vals.DEF_SELECTION_PROB,
+                 mutation_prob=vals.DEF_MUTATION_PROB,
+                 expected_val=vals.DEF_EXP_VAL,
+                 stand_dev=vals.DEF_STAND_DEV,
+                 fitness_func=vals.INPUT_FUNCTIONS[vals.DEF_FITNESS_FUNC_NUM].formula):
         self.pop_size = pop_size
+        self.init_pop_lower_lim = init_pop_lower_lim
+        self.init_pop_upper_lim = init_pop_upper_lim
+        self.selection_prob = selection_prob
+        self.mutation_prob = mutation_prob
+        self.expected_val = expected_val
+        self.stand_dev = stand_dev
         self.fitness_func = fitness_func
 
-    def __str__(self):
-        return f'space: {self.space}\n' \
-               f'population_size: {self.pop_size}\n' \
-               f'fitness function: {self.fitness_func}'
-
-    @staticmethod
-    def create_individual(lower_limit=vals.DEF_INIT_POP_LOWER_LIM, upper_limit=vals.DEF_INIT_POP_UPPER_LIM):
-        ind_coords = [random() * (upper_limit - lower_limit) + lower_limit for _ in range(2)]
+    def create_individual(self):
+        ind_coords = [random.uniform(self.init_pop_lower_lim, self.init_pop_upper_lim) for _ in range(2)]
         return Individual(ind_coords[0], ind_coords[1])
 
-    @staticmethod
-    def init_population(pop_size=vals.DEFAULT_POP_SIZE, lower_limit=vals.DEF_INIT_POP_LOWER_LIM,
-                        upper_limit=vals.DEF_INIT_POP_UPPER_LIM):
-        individuals = [GeneticAlgorithm.create_individual(lower_limit, upper_limit) for _ in range(pop_size)]
+    def init_population(self):
+        individuals = [self.create_individual() for _ in range(self.pop_size)]
         return Population(individuals)
 
     def calculate_fitness(self, population):
@@ -39,7 +43,6 @@ class GeneticAlgorithm:
 
     @staticmethod
     def get_weighted_rand_probs(individuals):
-        # individuals.sort(key=lambda ind: ind.fitness)
         fitness_sum = sum([ind.fitness for ind in individuals])
         return [ind.fitness / fitness_sum for ind in individuals]
 
@@ -51,10 +54,10 @@ class GeneticAlgorithm:
     #     return pop_copy.index(odds)
 
     # roulette wheel selection
-    @staticmethod
-    def selection(population):
+    def selection(self, population):
         selection_probs = GeneticAlgorithm.get_weighted_rand_probs(population.individuals)
-        selected = list(np.random.choice(population.individuals, size=len(population.individuals) // 2,
+        selected = list(np.random.choice(population.individuals,
+                                         size=int(len(population.individuals) * self.selection_prob),
                                          p=selection_probs))
         return selected
 
@@ -92,4 +95,27 @@ class GeneticAlgorithm:
     # exchange of coordinates of points
     @staticmethod
     def mate(parents):
-        return [[Individual(pair[0].x, pair[1].y), Individual(pair[1].x, pair[0].y)] for pair in parents]
+        offsprings = []
+        for pair in parents:
+            offsprings.append(Individual(pair[0].x, pair[1].y))
+            offsprings.append(Individual(pair[1].x, pair[0].y))
+        return offsprings
+
+    def mutate(self, offsprings):
+        offs_indxs = list(range(len(offsprings)))
+        offs_to_mutate_indxs = np.random.choice(offs_indxs, size=round(len(offsprings) * self.mutation_prob))
+        for i in offs_to_mutate_indxs:
+            gene_num = random.randint(0, 1)
+            if gene_num == 0:  # x coordinate
+                offsprings[i].x += np.random.normal(self.expected_val, self.stand_dev)
+            elif gene_num == 1:  # y coordinate
+                offsprings[i].y += np.random.normal(self.expected_val, self.stand_dev)
+        return offsprings
+
+    def run(self):
+        population = self.init_population()
+        self.calculate_fitness(population)
+        selected = self.selection(population)
+        parents = self.pair(selected)
+        offsprings = self.mate(parents)
+        mutated_offsprings = self.mutate(offsprings)

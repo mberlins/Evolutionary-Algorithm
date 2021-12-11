@@ -28,7 +28,7 @@ def create_2D_figure(x, y, results, title):
     plt.show()
 
 
-def create_input(function_num, _min=vals.DEFAULT_RANGE_MIN, _max=vals.DEFAULT_RANGE_MAX, step=vals.DEFAULT_STEP):
+def create_input(function_num, _min=vals.DEFAULT_SPACE_RANGE_MIN, _max=vals.DEFAULT_SPACE_RANGE_MAX, step=vals.DEFAULT_SPACE_STEP):
     if _min >= _max:
         raise exc.InvalidRangeError
     if function_num in vals.ALLOWED_INPUT_FUNCS_NUMS:
