@@ -11,8 +11,8 @@ def parse_args():
                                                        f'(allowed are: {vals.ALLOWED_INPUT_FUNCS_NUMS})')
     parser.add_argument('pop_size', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE,
                         help='An optional positional positive integer - population size')
-    parser.add_argument('selection_prob', type=float, nargs='?', default=vals.DEF_SELECTION_PROB,
-                        help='An optional positional float in range [0; 1] - selection probability')
+    parser.add_argument('generations_num', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE,
+                        help='An optional positional positive integer - number of generations')
     parser.add_argument('mutation_prob', type=float, nargs='?', default=vals.DEF_MUTATION_PROB,
                         help='An optional positional float in range [0; 1] - mutation probability')
     parser.add_argument('exp_val', type=float, nargs='?', default=vals.DEF_EXP_VAL,
@@ -36,8 +36,8 @@ def parse_args():
         parser.error(f'Incorrect input function number. Allowed numbers are: {vals.ALLOWED_INPUT_FUNCS_NUMS}.')
     if _args.pop_size <= 0:
         parser.error("Population size value must be a positive integer value.")
-    if _args.selection_prob < 0 or _args.selection_prob > 1:
-        parser.error("Selection probability must be a number in range [0; 1].")
+    if _args.generations_num <= 0:
+        parser.error("Number of generations value must be a positive integer value.")
     if _args.mutation_prob < 0 or _args.mutation_prob > 1:
         parser.error("Mutation probability must be a number in range [0; 1].")
     if _args.stand_dev < 0:
@@ -56,9 +56,9 @@ if __name__ == '__main__':
     args = parse_args()
     # space = Space(args.space_min, args.space_max, args.space_step)
     ga = GeneticAlgorithm(pop_size=args.pop_size,
+                          generations_num=args.generations_num,
                           init_pop_lower_lim=args.init_pop_lower_lim,
                           init_pop_upper_lim=args.init_pop_upper_lim,
-                          selection_prob=args.selection_prob,
                           mutation_prob=args.mutation_prob,
                           expected_val=args.exp_val,
                           stand_dev=args.stand_dev,

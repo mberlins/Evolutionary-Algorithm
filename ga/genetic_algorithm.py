@@ -13,17 +13,17 @@ from ga.population import Population
 class GeneticAlgorithm:
     def __init__(self,
                  pop_size=vals.DEFAULT_POP_SIZE,
+                 generations_num=vals.DEF_GENERATIONS_NUM,
                  init_pop_lower_lim=vals.DEF_INIT_POP_LOWER_LIM,
                  init_pop_upper_lim=vals.DEF_INIT_POP_UPPER_LIM,
-                 selection_prob=vals.DEF_SELECTION_PROB,
                  mutation_prob=vals.DEF_MUTATION_PROB,
                  expected_val=vals.DEF_EXP_VAL,
                  stand_dev=vals.DEF_STAND_DEV,
                  fitness_func=vals.INPUT_FUNCTIONS[vals.DEF_FITNESS_FUNC_NUM].formula):
         self.pop_size = pop_size
+        self.generations_num=generations_num
         self.init_pop_lower_lim = init_pop_lower_lim
         self.init_pop_upper_lim = init_pop_upper_lim
-        self.selection_prob = selection_prob
         self.mutation_prob = mutation_prob
         self.expected_val = expected_val
         self.stand_dev = stand_dev
@@ -43,8 +43,9 @@ class GeneticAlgorithm:
 
     @staticmethod
     def get_weighted_rand_probs(individuals):
-        fitness_sum = sum([ind.fitness for ind in individuals])
-        return [ind.fitness / fitness_sum for ind in individuals]
+        fitness = [1/ind.fitness for ind in individuals]
+        fitness_sum = sum(fitness)
+        return [fit / fitness_sum for fit in fitness]
 
     # @staticmethod
     # def roulette_choice(population, odds):
@@ -54,11 +55,12 @@ class GeneticAlgorithm:
     #     return pop_copy.index(odds)
 
     # roulette wheel selection
-    def selection(self, population):
-        selection_probs = GeneticAlgorithm.get_weighted_rand_probs(population.individuals)
+    @staticmethod
+    def selection(population):
+        crossover_probs = GeneticAlgorithm.get_weighted_rand_probs(population.individuals)
         selected = list(np.random.choice(population.individuals,
-                                         size=int(len(population.individuals) * self.selection_prob),
-                                         p=selection_probs))
+                                         size=len(population.individuals),
+                                         p=crossover_probs))
         return selected
 
         # another solution
@@ -114,8 +116,10 @@ class GeneticAlgorithm:
 
     def run(self):
         population = self.init_population()
-        self.calculate_fitness(population)
-        selected = self.selection(population)
-        parents = self.pair(selected)
-        offsprings = self.mate(parents)
-        mutated_offsprings = self.mutate(offsprings)
+        for g_num in range(self.generations_num):
+            self.calculate_fitness(population)
+            print(population)
+            selected = self.selection(population)
+            parents = self.pair(selected)
+            offsprings = self.mate(parents)
+            population = Population(self.mutate(offsprings))
