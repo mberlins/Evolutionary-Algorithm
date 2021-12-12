@@ -3,8 +3,7 @@ class Population:
         self.individuals = individuals
 
     def __str__(self):
-        return '-' * 200 + '\n' + \
-               f'Population individuals: \n\n' + \
+        return f'Population individuals: \n\n' + \
                ''.join([f'{idx}. {ind}\n' for idx, ind in enumerate(self.individuals)]) + \
                f'\nPopulation size: {len(self.individuals)}\n' + \
                '-' * 200

@@ -11,8 +11,10 @@ def parse_args():
                                                        f'(allowed are: {vals.ALLOWED_INPUT_FUNCS_NUMS})')
     parser.add_argument('pop_size', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE,
                         help='An optional positional positive integer - population size')
-    parser.add_argument('generations_num', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE,
+    parser.add_argument('generations_num', type=int, nargs='?', default=vals.DEF_GENERATIONS_NUM,
                         help='An optional positional positive integer - number of generations')
+    parser.add_argument('crossover_prob', type=float, nargs='?', default=vals.DEF_CROSSOVER_PROB,
+                        help='An optional positional float in range [0; 1] - crossover probability')
     parser.add_argument('mutation_prob', type=float, nargs='?', default=vals.DEF_MUTATION_PROB,
                         help='An optional positional float in range [0; 1] - mutation probability')
     parser.add_argument('exp_val', type=float, nargs='?', default=vals.DEF_EXP_VAL,
@@ -59,6 +61,7 @@ if __name__ == '__main__':
                           generations_num=args.generations_num,
                           init_pop_lower_lim=args.init_pop_lower_lim,
                           init_pop_upper_lim=args.init_pop_upper_lim,
+                          crossover_prob=args.crossover_prob,
                           mutation_prob=args.mutation_prob,
                           expected_val=args.exp_val,
                           stand_dev=args.stand_dev,

@@ -16,14 +16,16 @@ class GeneticAlgorithm:
                  generations_num=vals.DEF_GENERATIONS_NUM,
                  init_pop_lower_lim=vals.DEF_INIT_POP_LOWER_LIM,
                  init_pop_upper_lim=vals.DEF_INIT_POP_UPPER_LIM,
+                 crossover_prob=vals.DEF_MUTATION_PROB,
                  mutation_prob=vals.DEF_MUTATION_PROB,
                  expected_val=vals.DEF_EXP_VAL,
                  stand_dev=vals.DEF_STAND_DEV,
                  fitness_func=vals.INPUT_FUNCTIONS[vals.DEF_FITNESS_FUNC_NUM].formula):
         self.pop_size = pop_size
-        self.generations_num=generations_num
+        self.generations_num = generations_num
         self.init_pop_lower_lim = init_pop_lower_lim
         self.init_pop_upper_lim = init_pop_upper_lim
+        self.crossover_prob = crossover_prob
         self.mutation_prob = mutation_prob
         self.expected_val = expected_val
         self.stand_dev = stand_dev
@@ -43,6 +45,7 @@ class GeneticAlgorithm:
 
     @staticmethod
     def get_weighted_rand_probs(individuals):
+        # for minimisation
         fitness = [1/ind.fitness for ind in individuals]
         fitness_sum = sum(fitness)
         return [fit / fitness_sum for fit in fitness]
@@ -80,19 +83,15 @@ class GeneticAlgorithm:
         # selected = [population.individuals[selected_idx] for selected_idx in selected_idxs]
         # return selected
 
-    # weighted random pairing
-    @staticmethod
-    def pair(selected):
+    def pair(self, selected):
         parents = []
-        pairing_probs = GeneticAlgorithm.get_weighted_rand_probs(selected)
-        for _ in range(len(selected) // 2):
-            parent1 = np.random.choice(selected, p=pairing_probs)
-            while True:
-                parent2 = np.random.choice(selected, p=pairing_probs)
-                if parent1 is not parent2:
-                    break
+        for _ in range(int(len(selected) * self.crossover_prob // 2)):
+            parent1 = np.random.choice(selected)
+            selected.remove(parent1)
+            parent2 = np.random.choice(selected)
+            selected.remove(parent2)
             parents.append([parent1, parent2])
-        return parents
+        return parents, selected
 
     # exchange of coordinates of points
     @staticmethod
@@ -118,8 +117,9 @@ class GeneticAlgorithm:
         population = self.init_population()
         for g_num in range(self.generations_num):
             self.calculate_fitness(population)
+            print(f'Generation number: {g_num + 1}')
             print(population)
             selected = self.selection(population)
-            parents = self.pair(selected)
-            offsprings = self.mate(parents)
+            parents, not_paired = self.pair(selected)
+            offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
