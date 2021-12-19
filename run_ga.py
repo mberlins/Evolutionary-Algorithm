@@ -68,3 +68,4 @@ if __name__ == '__main__':
                           fitness_func=vals.INPUT_FUNCTIONS[args.function_num].formula)
     ga.run()
 
+

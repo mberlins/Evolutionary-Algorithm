@@ -2,6 +2,7 @@ import numpy as np
 import random
 import sys
 import os
+import statistics
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -46,7 +47,7 @@ class GeneticAlgorithm:
     @staticmethod
     def get_weighted_rand_probs(individuals):
         # for minimisation
-        fitness = [1/ind.fitness for ind in individuals]
+        fitness = [1 / ind.fitness for ind in individuals]
         fitness_sum = sum(fitness)
         return [fit / fitness_sum for fit in fitness]
 
@@ -113,6 +114,37 @@ class GeneticAlgorithm:
                 offsprings[i].y += np.random.normal(self.expected_val, self.stand_dev)
         return offsprings
 
+    def centerpoint_mean(self, population):
+        individuals_parameters = [0, 0, 0]
+        for individual in population.individuals:
+            individuals_parameters[0] += individual.x
+            individuals_parameters[1] += individual.y
+            individuals_parameters[2] += individual.fitness
+
+        individuals_parameters[0] = individuals_parameters[0] / len(population.individuals)
+        individuals_parameters[1] = individuals_parameters[1] / len(population.individuals)
+        individuals_parameters[2] = individuals_parameters[2] / len(population.individuals)
+
+        centerpoint = Individual(individuals_parameters[0], individuals_parameters[1])
+        centerpoint.fitness = individuals_parameters[2]
+        return centerpoint
+
+    def centerpoint_median(self, population):
+        individuals_parameters = [[], [], []]
+        for individual in population.individuals:
+            individuals_parameters[0].append(individual.x)
+            individuals_parameters[1].append(individual.y)
+            individuals_parameters[2].append(individual.fitness)
+
+        centerpoint_x = statistics.median(individuals_parameters[0])
+        centerpoint_y = statistics.median(individuals_parameters[1])
+        centerpoint_fitness = statistics.median(individuals_parameters[2])
+
+        centerpoint = Individual(centerpoint_x, centerpoint_y)
+        centerpoint.fitness = centerpoint_fitness
+
+        return centerpoint
+
     def run(self):
         population = self.init_population()
         for g_num in range(self.generations_num):
@@ -123,3 +155,10 @@ class GeneticAlgorithm:
             parents, not_paired = self.pair(selected)
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
+
+        centerpoint = self.centerpoint_mean(population)
+        print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+        centerpoint = self.centerpoint_median(population)
+        print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+
