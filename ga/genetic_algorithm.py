@@ -156,9 +156,12 @@ class GeneticAlgorithm:
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
 
-        centerpoint = self.centerpoint_mean(population)
-        print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-        centerpoint = self.centerpoint_median(population)
-        print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            if g_num % 124 == 0:
+                centerpoint = self.centerpoint_mean(population)
+                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                centerpoint = self.centerpoint_median(population)
+                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+
 
 
