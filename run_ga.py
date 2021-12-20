@@ -9,29 +9,30 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Running genetic algorithm')
     parser.add_argument('function_num', type=int, help=f'A required positional integer - input function number '
                                                        f'(allowed are: {vals.ALLOWED_INPUT_FUNCS_NUMS})')
-    parser.add_argument('pop_size', type=int, nargs='?', default=vals.DEFAULT_POP_SIZE,
+    parser.add_argument('--pop_size', type=int, default=vals.DEFAULT_POP_SIZE,
                         help='An optional positional positive integer - population size')
-    parser.add_argument('generations_num', type=int, nargs='?', default=vals.DEF_GENERATIONS_NUM,
+    parser.add_argument('--generations_num', type=int, default=vals.DEF_GENERATIONS_NUM,
                         help='An optional positional positive integer - number of generations')
-    parser.add_argument('crossover_prob', type=float, nargs='?', default=vals.DEF_CROSSOVER_PROB,
+    parser.add_argument('--crossover_prob', type=float, default=vals.DEF_CROSSOVER_PROB,
                         help='An optional positional float in range [0; 1] - crossover probability')
-    parser.add_argument('mutation_prob', type=float, nargs='?', default=vals.DEF_MUTATION_PROB,
+    parser.add_argument('--mutation_prob', type=float, default=vals.DEF_MUTATION_PROB,
                         help='An optional positional float in range [0; 1] - mutation probability')
-    parser.add_argument('exp_val', type=float, nargs='?', default=vals.DEF_EXP_VAL,
+    parser.add_argument('--exp_val', type=float, default=vals.DEF_EXP_VAL,
                         help='An optional positional float in range [0; 1] - expected value of normal distribution for '
                              'mutation')
-    parser.add_argument('stand_dev', type=float, nargs='?', default=vals.DEF_STAND_DEV,
+    parser.add_argument('--stand_dev', type=float, default=vals.DEF_STAND_DEV,
                         help='An optional positional float - standard deviation of normal distribution for mutation')
-    parser.add_argument('space_min', type=int, nargs='?', default=vals.DEFAULT_SPACE_RANGE_MIN,
+    parser.add_argument('--space_min', type=int, default=vals.DEFAULT_SPACE_RANGE_MIN,
                         help='An optional positional integer - minimal value of axes range')
-    parser.add_argument('space_max', type=int, nargs='?', default=vals.DEFAULT_SPACE_RANGE_MAX,
+    parser.add_argument('--space_max', type=int, default=vals.DEFAULT_SPACE_RANGE_MAX,
                         help='An optional positional integer - maximal value of axes range')
-    parser.add_argument('space_step', type=float, nargs='?', default=vals.DEFAULT_SPACE_STEP, 
+    parser.add_argument('--space_step', type=float, default=vals.DEFAULT_SPACE_STEP,
                         help='An optional positional float - step of axes')
-    parser.add_argument('init_pop_lower_lim', type=float, nargs='?', default=vals.DEF_INIT_POP_LOWER_LIM,
+    parser.add_argument('--init_pop_lower_lim', type=float, default=vals.DEF_INIT_POP_LOWER_LIM,
                         help='An optional positional float - lower limit of initial population coordinates')
-    parser.add_argument('init_pop_upper_lim', type=float, nargs='?', default=vals.DEF_INIT_POP_UPPER_LIM,
+    parser.add_argument('--init_pop_upper_lim', type=float, default=vals.DEF_INIT_POP_UPPER_LIM,
                         help='An optional positional float - upper limit of initial population coordinates')
+
     _args = parser.parse_args()
 
     if _args.function_num not in vals.ALLOWED_INPUT_FUNCS_NUMS:
@@ -56,7 +57,7 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    # space = Space(args.space_min, args.space_max, args.space_step)
+    space = Space(args.space_min, args.space_max, args.space_step)
     ga = GeneticAlgorithm(pop_size=args.pop_size,
                           generations_num=args.generations_num,
                           init_pop_lower_lim=args.init_pop_lower_lim,
