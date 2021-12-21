@@ -120,13 +120,13 @@ class GeneticAlgorithm:
         best_index = -1
         best_fitness = sys.maxsize
         counter = 0
-        for individual in population:
+        for individual in population.individuals:
             if individual.fitness < best_fitness:
                 best_index = counter
                 best_fitness = individual.fitness
             counter = counter + 1
 
-        return population[best_index]
+        return population.individuals[best_index]
 
     def find_worst_individual_index(self, population):
         worst_index = -1
@@ -140,6 +140,14 @@ class GeneticAlgorithm:
 
         return worst_index
 
+    def calculate_centerpoint(self, population, individuals_coors):
+        individuals_coors[0] = individuals_coors[0] / len(population.individuals)
+        individuals_coors[1] = individuals_coors[1] / len(population.individuals)
+
+        centerpoint = Individual(individuals_coors[0], individuals_coors[1])
+        centerpoint.fitness = self.fitness_func(centerpoint.x, centerpoint.y)
+        return centerpoint
+
     def eliminate_individual(self, population, index):
         population.individuals.pop(index)
         return population
@@ -150,12 +158,7 @@ class GeneticAlgorithm:
             individuals_coors[0] += individual.x
             individuals_coors[1] += individual.y
 
-        individuals_coors[0] = individuals_coors[0] / len(population.individuals)
-        individuals_coors[1] = individuals_coors[1] / len(population.individuals)
-
-        centerpoint = Individual(individuals_coors[0], individuals_coors[1])
-        centerpoint.fitness = self.fitness_func(centerpoint.x, centerpoint.y)
-        return centerpoint
+        return self.calculate_centerpoint(population, individuals_coors)
 
     def centerpoint_median(self, population):
         individuals_coors = [[], []]
@@ -187,6 +190,29 @@ class GeneticAlgorithm:
 
         return self.centerpoint_median(population)
 
+    def trimmed_mean(self, population, c):
+        best_individual = self.find_best_individual(population)
+        coors_coefficients = [[], []]
+        for individual in population.individuals:
+            if individual.fitness - best_individual.fitness > c:
+                coors_coefficients[0].append(0)
+                coors_coefficients[1].append(0)
+            else:
+                coors_coefficients[0].append(1)
+                coors_coefficients[1].append(1)
+
+        return self.mean_with_wages(population, coors_coefficients)
+
+    def mean_with_wages(self, population, wages):
+        individuals_coors = [0, 0]
+        counter = 0
+        for individual in population.individuals:
+            individuals_coors[0] += wages[0][counter] * individual.x
+            individuals_coors[1] += wages[1][counter] * individual.y
+            counter += 1
+
+        return self.calculate_centerpoint(population, individuals_coors)
+
     def run(self):
         population = self.init_population()
         for g_num in range(self.generations_num):
@@ -203,11 +229,15 @@ class GeneticAlgorithm:
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
                 centerpoint = self.centerpoint_median(population)
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
                 temporary_population = copy.deepcopy(population)
                 centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
                 temporary_population = copy.deepcopy(population)
                 centerpoint = self.median_without_worst_part(temporary_population, 0.25)
+                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+                centerpoint = self.trimmed_mean(population, 2)
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
 
