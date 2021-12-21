@@ -4,6 +4,7 @@ import sys
 import os
 import statistics
 import math
+import copy
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -127,6 +128,22 @@ class GeneticAlgorithm:
 
         return population[best_index]
 
+    def find_worst_individual_index(self, population):
+        worst_index = -1
+        worst_fitness = 0
+        counter = 0
+        for individual in population.individuals:
+            if individual.fitness > worst_fitness:
+                worst_index = counter
+                worst_fitness = individual.fitness
+            counter = counter + 1
+
+        return worst_index
+
+    def eliminate_individual(self, population, index):
+        population.individuals.pop(index)
+        return population
+
     def centerpoint_mean(self, population):
         individuals_coors = [0, 0]
         for individual in population.individuals:
@@ -154,12 +171,21 @@ class GeneticAlgorithm:
 
         return centerpoint
 
-    def classic_weighted_mean(self, population):
-        reversed_fitness = 0
-        individuals_coors = [0, 0]
+    def mean_without_worst_part(self, population, worst_part_share):
+        counter = len(population.individuals) / (1/worst_part_share)
+        for i in range(0, int(counter)):
+            worst_index = self.find_worst_individual_index(population)
+            population = self.eliminate_individual(population, worst_index)
 
+        return self.centerpoint_mean(population)
 
+    def median_without_worst_part(self, population, worst_part_share):
+        counter = len(population.individuals) / (1/worst_part_share)
+        for i in range(0, int(counter)):
+            worst_index = self.find_worst_individual_index(population)
+            population = self.eliminate_individual(population, worst_index)
 
+        return self.centerpoint_median(population)
 
     def run(self):
         population = self.init_population()
@@ -176,6 +202,12 @@ class GeneticAlgorithm:
                 centerpoint = self.centerpoint_mean(population)
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
                 centerpoint = self.centerpoint_median(population)
+                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                temporary_population = copy.deepcopy(population)
+                centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
+                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                temporary_population = copy.deepcopy(population)
+                centerpoint = self.median_without_worst_part(temporary_population, 0.25)
                 print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
 
