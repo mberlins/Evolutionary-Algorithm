@@ -1,7 +1,18 @@
+import math
+
 class InputFunction:
     class UnimodalFunction1:
         formula = lambda x, y: x ** 2 + y ** 2
         name = 'Unimodal function 1'
+
+    class UnimodalFunction2:
+        formula = lambda x, y: 0.26 * (x**2 + y**2) - 0.48 * x * y
+        name = 'Unimodal function 2'
+
+    class MultimodalFunction2:
+        formula = lambda x, y: (x**2 + y - 11)**2 + (x + y**2 - 7)**2
+        name = 'Multimodal Function 2'
+
 
 
 GAUSSIAN_VALUES_FILEPATH = 'data/results.txt'
@@ -19,6 +30,8 @@ DEF_INIT_POP_UPPER_LIM = -3
 DEF_FITNESS_FUNC_NUM = 1
 INPUT_FUNCTIONS = {
     1: InputFunction.UnimodalFunction1,
+    2: InputFunction.UnimodalFunction2,
+    3: InputFunction.MultimodalFunction2,
 }
 ALLOWED_INPUT_FUNCS_NUMS = list(INPUT_FUNCTIONS.keys())
 

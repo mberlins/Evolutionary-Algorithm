@@ -175,7 +175,7 @@ class GeneticAlgorithm:
         return centerpoint
 
     def mean_without_worst_part(self, population, worst_part_share):
-        counter = len(population.individuals) / (1/worst_part_share)
+        counter = len(population.individuals) / (1 / worst_part_share)
         for i in range(0, int(counter)):
             worst_index = self.find_worst_individual_index(population)
             population = self.eliminate_individual(population, worst_index)
@@ -183,7 +183,7 @@ class GeneticAlgorithm:
         return self.centerpoint_mean(population)
 
     def median_without_worst_part(self, population, worst_part_share):
-        counter = len(population.individuals) / (1/worst_part_share)
+        counter = len(population.individuals) / (1 / worst_part_share)
         for i in range(0, int(counter)):
             worst_index = self.find_worst_individual_index(population)
             population = self.eliminate_individual(population, worst_index)
@@ -192,16 +192,16 @@ class GeneticAlgorithm:
 
     def trimmed_mean(self, population, c):
         best_individual = self.find_best_individual(population)
-        coors_coefficients = [[], []]
+        wages = [[], []]
         for individual in population.individuals:
             if individual.fitness - best_individual.fitness > c:
-                coors_coefficients[0].append(0)
-                coors_coefficients[1].append(0)
+                wages[0].append(0)
+                wages[1].append(0)
             else:
-                coors_coefficients[0].append(1)
-                coors_coefficients[1].append(1)
+                wages[0].append(1)
+                wages[1].append(1)
 
-        return self.mean_with_wages(population, coors_coefficients)
+        return self.mean_with_wages(population, wages)
 
     def mean_with_wages(self, population, wages):
         individuals_coors = [0, 0]
@@ -212,6 +212,20 @@ class GeneticAlgorithm:
             counter += 1
 
         return self.calculate_centerpoint(population, individuals_coors)
+
+    def hubers_metric(self, population, c):
+        best_individual = self.find_best_individual(population)
+        wages = [[], []]
+        for individual in population.individuals:
+            difference = individual.x - best_individual.x + individual.y - best_individual.y
+            if abs(difference) >= 2 * c:
+                wages[0].append(c * (2 * abs(difference) - c))
+                wages[1].append(c * (2 * abs(difference) - c))
+            else:
+                wages[0].append(difference ** 2)
+                wages[1].append(difference ** 2)
+
+        return self.mean_with_wages(population, wages)
 
     def run(self):
         population = self.init_population()
@@ -224,22 +238,20 @@ class GeneticAlgorithm:
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
 
-            if g_num % 2 == 0:
-                centerpoint = self.centerpoint_mean(population)
-                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                centerpoint = self.centerpoint_median(population)
-                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            centerpoint = self.centerpoint_mean(population)
+            print(f'Regular mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            centerpoint = self.centerpoint_median(population)
+            print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
-                temporary_population = copy.deepcopy(population)
-                centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
-                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                temporary_population = copy.deepcopy(population)
-                centerpoint = self.median_without_worst_part(temporary_population, 0.25)
-                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            temporary_population = copy.deepcopy(population)
+            centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
+            print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            temporary_population = copy.deepcopy(population)
+            centerpoint = self.median_without_worst_part(temporary_population, 0.25)
+            print(f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
-                centerpoint = self.trimmed_mean(population, 2)
-                print(f'X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            centerpoint = self.trimmed_mean(population, 150)
+            print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
-
-
-
+            centerpoint = self.hubers_metric(population, 50)
+            print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
