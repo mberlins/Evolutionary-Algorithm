@@ -5,12 +5,13 @@ import os
 import statistics
 import math
 import copy
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+import input
 import vals
 from ga.individual import Individual
 from ga.population import Population
+import commands.visualize_input as vi
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class GeneticAlgorithm:
@@ -116,30 +117,6 @@ class GeneticAlgorithm:
                 offsprings[i].y += np.random.normal(self.expected_val, self.stand_dev)
         return offsprings
 
-    def find_best_individual(self, population):
-        best_index = -1
-        best_fitness = sys.maxsize
-        counter = 0
-        for individual in population.individuals:
-            if individual.fitness < best_fitness:
-                best_index = counter
-                best_fitness = individual.fitness
-            counter = counter + 1
-
-        return population.individuals[best_index]
-
-    def find_worst_individual_index(self, population):
-        worst_index = -1
-        worst_fitness = 0
-        counter = 0
-        for individual in population.individuals:
-            if individual.fitness > worst_fitness:
-                worst_index = counter
-                worst_fitness = individual.fitness
-            counter = counter + 1
-
-        return worst_index
-
     def calculate_centerpoint(self, population, individuals_coors):
         individuals_coors[0] = individuals_coors[0] / len(population.individuals)
         individuals_coors[1] = individuals_coors[1] / len(population.individuals)
@@ -147,10 +124,6 @@ class GeneticAlgorithm:
         centerpoint = Individual(individuals_coors[0], individuals_coors[1])
         centerpoint.fitness = self.fitness_func(centerpoint.x, centerpoint.y)
         return centerpoint
-
-    def eliminate_individual(self, population, index):
-        population.individuals.pop(index)
-        return population
 
     def centerpoint_mean(self, population):
         individuals_coors = [0, 0]
@@ -177,21 +150,21 @@ class GeneticAlgorithm:
     def mean_without_worst_part(self, population, worst_part_share):
         counter = len(population.individuals) / (1 / worst_part_share)
         for i in range(0, int(counter)):
-            worst_index = self.find_worst_individual_index(population)
-            population = self.eliminate_individual(population, worst_index)
+            worst_index = population.find_worst_individual_index()
+            population = population.eliminate_individual(worst_index)
 
         return self.centerpoint_mean(population)
 
     def median_without_worst_part(self, population, worst_part_share):
         counter = len(population.individuals) / (1 / worst_part_share)
         for i in range(0, int(counter)):
-            worst_index = self.find_worst_individual_index(population)
-            population = self.eliminate_individual(population, worst_index)
+            worst_index = population.find_worst_individual_index()
+            population = population.eliminate_individual(worst_index)
 
         return self.centerpoint_median(population)
 
     def trimmed_mean(self, population, c):
-        best_individual = self.find_best_individual(population)
+        best_individual = population.find_best_individual()
         wages = [[], []]
         for individual in population.individuals:
             if individual.fitness - best_individual.fitness > c:
@@ -214,7 +187,8 @@ class GeneticAlgorithm:
         return self.calculate_centerpoint(population, individuals_coors)
 
     def hubers_metric(self, population, c):
-        best_individual = self.find_best_individual(population)
+        best_individual = population.find_best_individual()
+        print(f'Best individual - X: {best_individual.x}, Y: {best_individual.y}, Value: {best_individual.fitness}')
         wages = [[], []]
         for individual in population.individuals:
             difference = individual.x - best_individual.x + individual.y - best_individual.y
@@ -253,5 +227,14 @@ class GeneticAlgorithm:
             centerpoint = self.trimmed_mean(population, 150)
             print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
-            centerpoint = self.hubers_metric(population, 50)
+            centerpoint = self.hubers_metric(population, 1.5)
             print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+            if g_num % 99 == 0:
+                args = vi.parse_args()
+                x, y, results = input.create_function(args.min, args.max, args.step,
+                                                      vals.INPUT_FUNCTIONS[args.function_num].formula)
+                # input.create_3D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name)
+                input.create_2D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name, population,
+                                       centerpoint)
+

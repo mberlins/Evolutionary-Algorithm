@@ -20,15 +20,28 @@ def create_3D_figure(x, y, results, title):
     plt.show()
 
 
-def create_2D_figure(x, y, results, title):
+def create_2D_figure(x, y, results, title, population, center_point):
     figure = plt.figure(num=f'{title} - 2D')
     axis = figure.add_subplot()
     axis.imshow(results, origin='lower', cmap='jet', extent=(x.min(), x.max(), y.min(), y.max()))
     axis.contour(x, y, results, levels=30, linewidths=1, colors='w')
+
+    individuals_x_coors = []
+    individuals_y_coors = []
+
+    for individual in population.individuals:
+        individuals_x_coors.append(individual.x)
+        individuals_y_coors.append(individual.y)
+
+    plt.scatter(center_point.x, center_point.y, s=50)
+    plt.scatter(individuals_x_coors, individuals_y_coors, s=2, color='red')
+    best_individual = population.find_best_individual()
+    plt.scatter(best_individual.x, best_individual.y, s=25, color='yellow')
     plt.show()
 
 
-def create_input(function_num, _min=vals.DEFAULT_SPACE_RANGE_MIN, _max=vals.DEFAULT_SPACE_RANGE_MAX, step=vals.DEFAULT_SPACE_STEP):
+def create_input(function_num, _min=vals.DEFAULT_SPACE_RANGE_MIN, _max=vals.DEFAULT_SPACE_RANGE_MAX,
+                 step=vals.DEFAULT_SPACE_STEP):
     if _min >= _max:
         raise exc.InvalidRangeError
     if function_num in vals.ALLOWED_INPUT_FUNCS_NUMS:
