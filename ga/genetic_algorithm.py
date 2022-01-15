@@ -14,7 +14,7 @@ import commands.visualize_input as vi
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def sum_wages(wages,):
+def sum_wages(wages, ):
     wages_sum = 0
     for i in range(len(wages)):
         wages_sum += wages[i]
@@ -175,13 +175,13 @@ class GeneticAlgorithm:
         best_individual = population.find_best_individual()
         wages = [[], []]
         for individual in population.individuals:
-            difference = individual.x - best_individual.x + individual.y - best_individual.y
-            if abs(difference) >= 2 * c:
+            difference = math.sqrt((individual.x - best_individual.x) ** 2 + (individual.y - best_individual.y) ** 2)
+            if abs(difference) >= c:
                 wages[0].append(0)
                 wages[1].append(0)
             else:
-                wages[0].append(difference)
-                wages[1].append(difference)
+                wages[0].append(1)
+                wages[1].append(1)
 
         return self.mean_with_wages(population, wages)
 
@@ -200,19 +200,17 @@ class GeneticAlgorithm:
         centerpoint.fitness = self.fitness_func(centerpoint.x, centerpoint.y)
         return centerpoint
 
-    # a moze nalezy sumowac wagi??
     def hubers_metric(self, population, c):
         best_individual = population.find_best_individual()
-        print(f'Best individual - X: {best_individual.x}, Y: {best_individual.y}, Value: {best_individual.fitness}')
         wages = [[], []]
         for individual in population.individuals:
-            difference = individual.x - best_individual.x + individual.y - best_individual.y
-            if abs(difference) >= 2 * c:
-                wages[0].append(c * (2 * abs(difference) - c))
-                wages[1].append(c * (2 * abs(difference) - c))
+            difference = math.sqrt((individual.x - best_individual.x) ** 2 + (individual.y - best_individual.y) ** 2)
+            if abs(difference) >= c:
+                wages[0].append(c * (2 * abs(individual.x) - c))
+                wages[1].append(c * (2 * abs(individual.y) - c))
             else:
-                wages[0].append(difference ** 2)
-                wages[1].append(difference ** 2)
+                wages[0].append(individual.x ** 2)
+                wages[1].append(individual.y ** 2)
 
         return self.mean_with_wages(population, wages)
 
@@ -220,36 +218,36 @@ class GeneticAlgorithm:
         population = self.init_population()
         for g_num in range(self.generations_num):
             self.calculate_fitness(population)
-            print(f'Generation number: {g_num + 1}')
-            print(population)
+            # print(f'Generation number: {g_num + 1}')
+            # print(population)
             selected = self.selection(population)
             parents, not_paired = self.pair(selected)
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
 
-            # centerpoint = self.centerpoint_mean(population)
-            # print(f'Regular mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-            # centerpoint = self.centerpoint_median(population)
-            # print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
-            # temporary_population = copy.deepcopy(population)
-            # centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
-            # print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-            # temporary_population = copy.deepcopy(population)
-            # centerpoint = self.median_without_worst_part(temporary_population, 0.25)
-            # print(f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
-            # centerpoint = self.trimmed_mean(population, 150)
-            # print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
-            centerpoint = self.hubers_metric(population, 2.5)
-            print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
             if g_num % 99 == 0:
+                print(f'\n\n\n{g_num}')
+                centerpoint = self.trimmed_mean(population, 1.345)
+                print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                centerpoint = self.hubers_metric(population, 500)
+                print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+                centerpoint = self.centerpoint_mean(population)
+                print(f'Regular mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                centerpoint = self.centerpoint_median(population)
+                print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
+                temporary_population = copy.deepcopy(population)
+                centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
+                print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+                temporary_population = copy.deepcopy(population)
+                centerpoint = self.median_without_worst_part(temporary_population, 0.25)
+                print(
+                    f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+
                 args = vi.parse_args()
                 x, y, results = input.create_function(args.min, args.max, args.step,
                                                       vals.INPUT_FUNCTIONS[args.function_num].formula)
                 # input.create_3D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name)
                 input.create_2D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name, population,
                                        centerpoint)
-

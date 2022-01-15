@@ -1,4 +1,12 @@
 import math
+from numpy import exp
+from numpy import sqrt
+from numpy import cos
+from numpy import sin
+from numpy import pi
+from numpy import absolute
+from numpy import e
+
 
 class InputFunction:
     class UnimodalFunction1:
@@ -6,13 +14,20 @@ class InputFunction:
         name = 'Unimodal function 1'
 
     class UnimodalFunction2:
-        formula = lambda x, y: 0.26 * (x**2 + y**2) - 0.48 * x * y
+        formula = lambda x, y: 0.26 * (x ** 2 + y ** 2) - 0.48 * x * y
         name = 'Unimodal function 2'
 
+    class MultimodalFunction1:
+        formula = lambda x, y: -20.0 * exp(-0.2 * sqrt(0.5 * (x ** 2 + y ** 2))) - exp(0.5 * (cos(2 * pi * x) + cos(2 * pi * y))) + e + 20
+        name = 'Multimodal function 1'
+
     class MultimodalFunction2:
-        formula = lambda x, y: (x**2 + y - 11)**2 + (x + y**2 - 7)**2
+        formula = lambda x, y: (x ** 2 + y - 11) ** 2 + (x + y ** 2 - 7) ** 2
         name = 'Multimodal Function 2'
 
+    class MultimodalFunction3:
+        formula = lambda x, y: -absolute(sin(x) * cos(y) * exp(absolute(1 - (sqrt(x**2 + y**2)/pi))))
+        name = 'Multimodal Function 3'
 
 
 GAUSSIAN_VALUES_FILEPATH = 'data/results.txt'
@@ -31,7 +46,8 @@ DEF_FITNESS_FUNC_NUM = 1
 INPUT_FUNCTIONS = {
     1: InputFunction.UnimodalFunction1,
     2: InputFunction.UnimodalFunction2,
-    3: InputFunction.MultimodalFunction2,
+    3: InputFunction.MultimodalFunction1,
+    4: InputFunction.MultimodalFunction2,
+    5: InputFunction.MultimodalFunction3,
 }
 ALLOWED_INPUT_FUNCS_NUMS = list(INPUT_FUNCTIONS.keys())
-

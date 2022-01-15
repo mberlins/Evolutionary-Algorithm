@@ -12,12 +12,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Creating files with input functions')
     parser.add_argument('function_num', type=int, help=f'A required positional integer - input function number '
                                                        f'(allowed are: {vals.ALLOWED_INPUT_FUNCS_NUMS})')
-    parser.add_argument('min', type=int, nargs='?', default=vals.DEFAULT_SPACE_RANGE_MIN,
+    parser.add_argument('--min', type=int, default=vals.DEFAULT_SPACE_RANGE_MIN,
                         help='A required positional integer - minimal value of axes range')
-    parser.add_argument('max', type=int, nargs='?', default=vals.DEFAULT_SPACE_RANGE_MAX,
+    parser.add_argument('--max', type=int, default=vals.DEFAULT_SPACE_RANGE_MAX,
                         help='An optional positional integer - maximal value of axes range')
-    parser.add_argument('step', type=float, nargs='?', default=vals.DEFAULT_SPACE_STEP,
+    parser.add_argument('--step', type=float, default=vals.DEFAULT_SPACE_STEP,
                         help='An optional positional float - step of axes')
+
     _args = parser.parse_args()
 
     if not isinstance(_args.function_num, int):
