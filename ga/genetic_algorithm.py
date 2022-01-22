@@ -225,11 +225,11 @@ class GeneticAlgorithm:
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
 
-            if g_num % 99 == 0:
+            if g_num % vals.DEF_PRINTING_PERIOD == 0:
                 print(f'\n\n\n{g_num}')
-                centerpoint = self.trimmed_mean(population, 1.345)
+                centerpoint = self.trimmed_mean(population, vals.DEF_TRIMMED_MEAN_COEFF)
                 print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                centerpoint = self.hubers_metric(population, 500)
+                centerpoint = self.hubers_metric(population, vals.DEF_HUBERS_METRIC_COEFF)
                 print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
                 centerpoint = self.centerpoint_mean(population)
@@ -238,10 +238,10 @@ class GeneticAlgorithm:
                 print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
                 temporary_population = copy.deepcopy(population)
-                centerpoint = self.mean_without_worst_part(temporary_population, 0.25)
+                centerpoint = self.mean_without_worst_part(temporary_population, vals.DEF_MEAN_WORST_PART_SHARE)
                 print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
                 temporary_population = copy.deepcopy(population)
-                centerpoint = self.median_without_worst_part(temporary_population, 0.25)
+                centerpoint = self.median_without_worst_part(temporary_population, vals.DEF_MEDIAN_WORST_PART_SHARE)
                 print(
                     f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
 
