@@ -1,11 +1,7 @@
 import numpy as np
 import random
-import sys
-import os
 import statistics
 import math
-import copy
-import input
 import vals
 from ga.individual import Individual
 from ga.population import Population
@@ -21,8 +17,20 @@ def sum_wages(wages):
 
 
 class CenterpointCalculation:
-    def __init__(self, fitness_func=vals.INPUT_FUNCTIONS[vals.DEF_FITNESS_FUNC_NUM].formula):
+    def __init__(self,
+                 fitness_func=vals.INPUT_FUNCTIONS[vals.DEF_FITNESS_FUNC_NUM].formula):
         self.fitness_func = fitness_func
+        self.centerpoint_wins = [0, 0, 0, 0, 0, 0]
+        self.bestpoint_wins = [0, 0, 0, 0, 0, 0]
+        self.draws = [0, 0, 0, 0, 0, 0]
+
+    def compare_centerpoint_with_bestpoint(self, centerpoint, bestpoint, method):
+        if centerpoint.fitness < bestpoint.fitness:
+            self.centerpoint_wins[method] += 1
+        elif centerpoint.fitness > bestpoint.fitness:
+            self.bestpoint_wins[method] += 1
+        else:
+            self.draws[method] += 1
 
     def calculate_centerpoint(self, population, individuals_coors):
         individuals_coors[0] = individuals_coors[0] / len(population.individuals)

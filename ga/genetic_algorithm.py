@@ -131,29 +131,44 @@ class GeneticAlgorithm:
             offsprings = self.mate(parents) + not_paired
             population = Population(self.mutate(offsprings))
 
+            print(f'\n\n\n{g_num}')
+
+            centerpoint = cc.trimmed_mean(population, vals.DEF_TRIMMED_MEAN_COEFF)
+            print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 0)
+
+            centerpoint = cc.hubers_metric(population, vals.DEF_HUBERS_METRIC_COEFF)
+            print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 1)
+
+            centerpoint = cc.centerpoint_mean(population)
+            print(f'Regular mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 2)
+
+            centerpoint = cc.centerpoint_median(population)
+            print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 3)
+
+            temporary_population = copy.deepcopy(population)
+            centerpoint = cc.mean_without_worst_part(temporary_population, vals.DEF_MEAN_WORST_PART_SHARE)
+            print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 4)
+
+            temporary_population = copy.deepcopy(population)
+            centerpoint = cc.median_without_worst_part(temporary_population, vals.DEF_MEDIAN_WORST_PART_SHARE)
+            print(
+                f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
+            cc.compare_centerpoint_with_bestpoint(centerpoint, population.find_best_individual(), 5)
+
             if g_num % vals.DEF_PRINTING_PERIOD == 0:
-                print(f'\n\n\n{g_num}')
-                centerpoint = cc.trimmed_mean(population, vals.DEF_TRIMMED_MEAN_COEFF)
-                print(f'Trimmed mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                centerpoint = cc.hubers_metric(population, vals.DEF_HUBERS_METRIC_COEFF)
-                print(f'Huber\'s metric - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
-                centerpoint = cc.centerpoint_mean(population)
-                print(f'Regular mean - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                centerpoint = cc.centerpoint_median(population)
-                print(f'Regular median - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
-                temporary_population = copy.deepcopy(population)
-                centerpoint = cc.mean_without_worst_part(temporary_population, vals.DEF_MEAN_WORST_PART_SHARE)
-                print(f'Mean without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-                temporary_population = copy.deepcopy(population)
-                centerpoint = cc.median_without_worst_part(temporary_population, vals.DEF_MEDIAN_WORST_PART_SHARE)
-                print(
-                    f'Median without worst part - X: {centerpoint.x}, Y: {centerpoint.y}, Value: {centerpoint.fitness}')
-
                 args = vi.parse_args()
                 x, y, results = input.create_function(args.min, args.max, args.step,
                                                       vals.INPUT_FUNCTIONS[args.function_num].formula)
                 # input.create_3D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name)
                 input.create_2D_figure(x, y, results, vals.INPUT_FUNCTIONS[args.function_num].name, population,
                                        centerpoint)
+
+        for i in range(0, 5):
+            print(f'Centerpoint wins: {cc.centerpoint_wins[i]}')
+            print(f'Bestpoint wins: {cc.bestpoint_wins[i]}')
+            print(f'Draws: {cc.draws[i]} \n')
