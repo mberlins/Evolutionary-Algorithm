@@ -32,6 +32,16 @@ def parse_args():
                         help='An optional positional float - lower limit of initial population coordinates')
     parser.add_argument('--init_pop_upper_lim', type=float, default=vals.DEF_INIT_POP_UPPER_LIM,
                         help='An optional positional float - upper limit of initial population coordinates')
+    parser.add_argument('--printing_period', type=int, default=vals.DEF_PRINTING_PERIOD,
+                        help='An optional positional integer - number of iterations separating two input visualizations')
+    parser.add_argument('--trimmed_mean_coeff', type=float, default=vals.DEF_TRIMMED_MEAN_COEFF,
+                        help='An optional positional float - trimmed mean coefficient')
+    parser.add_argument('--hubers_metric_coeff', type=float, default=vals.DEF_HUBERS_METRIC_COEFF,
+                        help='An optional positional float - hubers metric coefficient')
+    parser.add_argument('--mean_worst_part_share', type=float, default=vals.DEF_MEAN_WORST_PART_SHARE,
+                        help='An optional positional float - share of individuals rejected in each iteration')
+    parser.add_argument('--median_worst_part_share', type=float, default=vals.DEF_MEDIAN_WORST_PART_SHARE,
+                        help='An optional positional float - share of individuals rejected in each iteration')
 
     _args = parser.parse_args()
 
@@ -51,6 +61,16 @@ def parse_args():
         parser.error("Lower limit of initial population coordinates must be in range ['space_min'; 'space_max').")
     if _args.init_pop_upper_lim > _args.space_max or _args.init_pop_upper_lim <= _args.space_min:
         parser.error("Upper limit of initial population coordinates must be in range ('space_min'; 'space_max'].")
+    if _args.printing_period <= 0:
+        parser.error("Printing period value must be a positive integer value.")
+    if _args.trimmed_mean_coeff <= 0:
+        parser.error("Trimmed mean coefficient value must be a positive float value.")
+    if _args.hubers_metric_coeff <= 0:
+        parser.error("Huber's metric coefficient value must be a positive float value.")
+    if _args.mean_worst_part_share <= 0 or _args.mean_worst_part_share > 0.5:
+        parser.error("Mean's worst part share must must be within the range of (0, 0.5]")
+    if _args.median_worst_part_share <= 0 or _args.median_worst_part_share > 0.5:
+        parser.error("Median's worst part share must must be within the range of (0, 0.5]")
 
     return _args
 
