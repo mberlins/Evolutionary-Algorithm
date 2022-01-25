@@ -33,10 +33,10 @@ def create_2D_figure(x, y, results, title, population, center_point):
         individuals_x_coors.append(individual.x)
         individuals_y_coors.append(individual.y)
 
-    plt.scatter(center_point.x, center_point.y, s=50, color='orange')
+    plt.scatter(center_point.x, center_point.y, s=24, color='green')
     plt.scatter(individuals_x_coors, individuals_y_coors, s=2, color='red')
     best_individual = population.find_best_individual()
-    plt.scatter(best_individual.x, best_individual.y, s=25, color='yellow')
+    plt.scatter(best_individual.x, best_individual.y, s=4, color='yellow')
     plt.show()
 
 
