@@ -42,6 +42,8 @@ def parse_args():
                         help='An optional positional float - share of individuals rejected in each iteration')
     parser.add_argument('--median_worst_part_share', type=float, default=vals.DEF_MEDIAN_WORST_PART_SHARE,
                         help='An optional positional float - share of individuals rejected in each iteration')
+    parser.add_argument('--executions_number', type=int, default=vals.DEF_EXECUTIONS_NUMBER,
+                        help='An optional positional integer - number of executions of the genetic algorithm')
 
     _args = parser.parse_args()
 
@@ -71,6 +73,8 @@ def parse_args():
         parser.error("Mean's worst part share must must be within the range of (0, 0.5]")
     if _args.median_worst_part_share <= 0 or _args.median_worst_part_share > 0.5:
         parser.error("Median's worst part share must must be within the range of (0, 0.5]")
+    if _args.executions_number <= 0:
+        parser.error("Number of executions can not be lower than 1")
 
     return _args
 
